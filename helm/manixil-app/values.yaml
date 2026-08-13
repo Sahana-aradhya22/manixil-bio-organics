@@ -1,0 +1,14 @@
+replicaCount: 1
+
+image:
+  repository: 334575333234.dkr.ecr.ap-south-1.amazonaws.com/manixil-app
+  tag: "latest"
+  pullPolicy: Always
+
+service:
+  type: NodePort
+  port: 3000
+  targetPort: 3000
+  nodePort: 30000
+
+containerPort: 3000
