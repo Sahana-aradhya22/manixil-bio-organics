@@ -11,6 +11,7 @@ pipeline {
         K8S_HOST = '172.31.12.236'
     }
 
+    
     stages {
 
         stage('Install Dependencies') {
