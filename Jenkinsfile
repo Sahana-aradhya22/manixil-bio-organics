@@ -16,7 +16,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                npm install
+                    npm install
                 '''
             }
         }
@@ -24,7 +24,7 @@ pipeline {
         stage('Build NextJS') {
             steps {
                 sh '''
-                npm run build
+                    npm run build
                 '''
             }
         }
@@ -32,7 +32,8 @@ pipeline {
         stage('Docker Build') {
             steps {
                 sh '''
-                docker build -t $ECR_REPO:$IMAGE_TAG .
+                    docker build \
+                    -t $ECR_REPO:$IMAGE_TAG .
                 '''
             }
         }
@@ -40,11 +41,12 @@ pipeline {
         stage('ECR Login') {
             steps {
                 sh '''
-                aws ecr get-login-password --region $AWS_REGION | \
-                docker login \
-                --username AWS \
-                --password-stdin \
-                334575333234.dkr.ecr.ap-south-1.amazonaws.com
+                    aws ecr get-login-password \
+                    --region $AWS_REGION | \
+                    docker login \
+                    --username AWS \
+                    --password-stdin \
+                    334575333234.dkr.ecr.ap-south-1.amazonaws.com
                 '''
             }
         }
@@ -52,20 +54,33 @@ pipeline {
         stage('Push Image') {
             steps {
                 sh '''
-                docker push $ECR_REPO:$IMAGE_TAG
+                    docker push $ECR_REPO:$IMAGE_TAG
                 '''
             }
         }
 
         stage('Deploy') {
             steps {
-                sshagent(['k8s-ssh']) {
+
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'k8s-ssh',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'SSH_USER'
+                    )
+                ]) {
+
                     sh '''
-                    ssh -o StrictHostKeyChecking=no deploy@$K8S_HOST "
-                    helm upgrade --install manixil-app ~/helm/manixil-app \
-                    --set image.repository=$ECR_REPO \
-                    --set image.tag=$IMAGE_TAG
-                    "
+                        chmod 600 "$SSH_KEY"
+
+                        ssh -i "$SSH_KEY" \
+                            -o StrictHostKeyChecking=no \
+                            "$SSH_USER@$K8S_HOST" "
+                                helm upgrade --install manixil-app \
+                                /home/deploy/helm/manixil-app \
+                                --set image.repository=$ECR_REPO \
+                                --set image.tag=$IMAGE_TAG
+                            "
                     '''
                 }
             }
@@ -73,6 +88,7 @@ pipeline {
     }
 
     post {
+
         success {
             echo 'Deployment Successful'
         }
