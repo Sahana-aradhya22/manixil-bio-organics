@@ -11,22 +11,17 @@ pipeline {
         K8S_HOST = '172.31.12.236'
     }
 
-    
     stages {
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                    npm install
-                '''
+                sh 'npm install'
             }
         }
 
         stage('Build NextJS') {
             steps {
-                sh '''
-                    npm run build
-                '''
+                sh 'npm run build'
             }
         }
 
@@ -60,7 +55,7 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Wrong Image') {
             steps {
 
                 withCredentials([
@@ -75,13 +70,15 @@ pipeline {
                         chmod 600 "$SSH_KEY"
 
                         ssh -i "$SSH_KEY" \
-                            -o StrictHostKeyChecking=no \
-                            "$SSH_USER@$K8S_HOST" "
-                                helm upgrade --install manixil-app \
-                                /home/deploy/helm/manixil-app \
-                                --set image.repository=$ECR_REPO \
-                                --set image.tag=$IMAGE_TAG
-                            "
+                        -o StrictHostKeyChecking=no \
+                        "$SSH_USER@$K8S_HOST" "
+
+                            helm upgrade --install manixil-app \
+                            /home/deploy/helm/manixil-app \
+                            --set image.repository=$ECR_REPO \
+                            --set image.tag=99999999
+
+                        "
                     '''
                 }
             }
@@ -89,7 +86,6 @@ pipeline {
     }
 
     post {
-
         success {
             echo 'Deployment Successful'
         }
