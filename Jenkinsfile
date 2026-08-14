@@ -76,8 +76,7 @@ pipeline {
                             helm upgrade --install manixil-app \
                             /home/deploy/helm/manixil-app \
                             --set image.repository=$ECR_REPO \
-                            --set image.tag=99999999
-
+                            --set image.tag=$IMAGE_TAG
                         "
                     '''
                 }
