@@ -48,11 +48,13 @@ pipeline {
                     --password-stdin \
                     334575333234.dkr.ecr.ap-south-1.amazonaws.com
                 '''
-            }
-        }
-         echo '========================================='
+
+        echo '========================================='
         echo 'Login to ECR '
          echo '========================================='
+            }
+        }
+         
 
         stage('Push Image') {
             steps {
