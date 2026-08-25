@@ -66,7 +66,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-
+        
                 withCredentials([
                     sshUserPrivateKey(
                         credentialsId: 'k8s-ssh',
@@ -74,33 +74,35 @@ pipeline {
                         usernameVariable: 'SSH_USER'
                     )
                 ]) {
-
+        
                     sh '''
                         chmod 600 "$SSH_KEY"
-
+        
                         ssh -i "$SSH_KEY" \
                             -o StrictHostKeyChecking=no \
                             "$SSH_USER@$K8S_HOST" "
                             
-                                echo '========================================='
-                                echo 'Refreshing ECR Secret'
-                                echo '========================================='
-
-                                aws ecr get-login-password \
-                                --region $AWS_REGION | \
-                                kubectl create secret docker-registry ecr-secret \
+                            set -e
+        
+                            echo '========================================='
+                            echo 'Refreshing ECR Secret'
+                            echo '========================================='
+        
+                            ECR_PASSWORD=\\$(aws ecr get-login-password --region $AWS_REGION)
+        
+                            kubectl create secret docker-registry ecr-secret \
                                 --docker-server=334575333234.dkr.ecr.ap-south-1.amazonaws.com \
                                 --docker-username=AWS \
-                                --docker-password-stdin \
+                                --docker-password=\\\"\\$ECR_PASSWORD\\\" \
                                 --dry-run=client -o yaml | kubectl apply -f -
-
-                                echo 'ECR secret refreshed successfully'
-
-                                echo '========================================='
-                                echo 'Deploying Application using Helm'
-                                echo '========================================='
-
-                                helm upgrade --install manixil-app \
+        
+                            echo 'ECR secret refreshed successfully'
+        
+                            echo '========================================='
+                            echo 'Deploying Application using Helm'
+                            echo '========================================='
+        
+                            helm upgrade --install manixil-app \
                                 /home/deploy/helm/manixil-app \
                                 --set image.repository=$ECR_REPO \
                                 --set image.tag=$IMAGE_TAG
