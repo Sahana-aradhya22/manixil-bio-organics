@@ -76,10 +76,33 @@ pipeline {
                         ssh -i "$SSH_KEY" \
                             -o StrictHostKeyChecking=no \
                             "$SSH_USER@$K8S_HOST" "
+                            
+                                echo '========================================='
+                                echo 'Refreshing ECR Secret'
+                                echo '========================================='
+
+                                aws ecr get-login-password \
+                                --region $AWS_REGION | \
+                                kubectl create secret docker-registry ecr-secret \
+                                --docker-server=334575333234.dkr.ecr.ap-south-1.amazonaws.com \
+                                --docker-username=AWS \
+                                --docker-password-stdin \
+                                --dry-run=client -o yaml | kubectl apply -f -
+
+                                echo 'ECR secret refreshed successfully'
+
+                                echo '========================================='
+                                echo 'Deploying Application using Helm'
+                                echo '========================================='
+
                                 helm upgrade --install manixil-app \
                                 /home/deploy/helm/manixil-app \
                                 --set image.repository=$ECR_REPO \
                                 --set image.tag=$IMAGE_TAG
+
+                                echo '========================================='
+                                echo 'Helm deployment completed'
+                                echo '========================================='
                             "
                     '''
                 }
