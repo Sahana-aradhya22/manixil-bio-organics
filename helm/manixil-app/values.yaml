@@ -20,5 +20,4 @@ service:
   targetPort: 3000
   nodePort: 30000
   
-
 containerPort: 3000
