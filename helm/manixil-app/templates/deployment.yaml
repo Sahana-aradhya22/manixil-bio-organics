@@ -25,8 +25,8 @@ spec:
       imagePullSecrets:
         - name: ecr-secret
 
-      tolerations:
-        {{- toYaml .Values.tolerations | nindent 8 }}
+      nodeSelector:
+          {{- toYaml .Values.nodeSelector | nindent 8 }}
 
       containers:
         - name: manixil-app
