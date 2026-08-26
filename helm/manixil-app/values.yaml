@@ -19,5 +19,6 @@ service:
   port: 3000
   targetPort: 3000
   nodePort: 30000
+  
 
 containerPort: 3000
