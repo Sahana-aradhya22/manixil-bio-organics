@@ -11,11 +11,8 @@ strategy:
     maxUnavailable: 0
     maxSurge: 1
 
-tolerations:
-  - key: "app"
-    operator: "Equal"
-    value: "manixil"
-    effect: "NoSchedule"
+nodeSelector:
+  app: manixil
 
 service:
   type: NodePort
