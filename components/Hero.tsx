@@ -7,7 +7,7 @@ export default function Hero() {
       <div className="max-w-7xl mx-auto px-6">
 
         <h1 className="text-5xl font-bold mb-6">
-          Research Driven Chemical Manufacturing V2
+          Research Driven Chemical Manufacturing V2.0
         </h1>
 
         <p className="text-xl max-w-4xl">
